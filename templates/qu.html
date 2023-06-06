@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+ <div class="quiz_content-section">
+
+        <form method="POST" action="">
+
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4"> {{ legend}} </legend>
+
+                <div class ="form-group">
+                    {{ form.title.label(class= "form-control-label") }}
+                    {{ form.title(class= "form-control form-control-lg") }}
+                </div>
+                <div class ="form-group">
+                    {{ form.content.label(class= "form-control-label") }}
+                    {{ form.content(class= "form-control form-control-lg") }}
+                </div>
+                <div class ="form-group">
+                    {{ form.option1.label(class= "form-control-label") }}
+                    {{ form.option1(class= "form-control form-control-lg") }}
+                </div>
+                <div class ="form-group">
+                    {{ form.option2.label(class= "form-control-label") }}
+                    {{ form.option2(class= "form-control form-control-lg") }}
+                </div>
+                <div class ="form-group">
+                    {{ form.option3.label(class= "form-control-label") }}
+                    {{ form.option3(class= "form-control form-control-lg") }}
+                </div>
+                <div class ="form-group">
+                    {{ form.option4.label(class= "form-control-label") }}
+                    {{ form.option4(class= "form-control form-control-lg") }}
+                </div>
+            </fieldset>
+            <div class ="form-group">
+                    {{ form.submit(class = "btn btn-outline-info")}}
+            </div>
+        </form>
+    </div>
+
+
+{% endblock content %}

@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    {% for quizzes in quizzes %}
+
+<quiz class="media quiz_content-section">
+  <div class="media-body">
+    <div class="quiz-metadata">
+      <a class="mr-2" href="#">{{ quizzes.title }}</a>
+      <small class="text-muted">{{ quizzes.date_posted.strftime('%Y-%m-%d') }}</small>
+      <div>
+          <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_quiz', post_id=quizzes.id) }}">Update</a>
+          <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+      </div>
+    </div>
+    <h2><a class="quizzes.title" href="#">{{ quizzes.content }}</a></h2>
+      <p class="quiz_content">1: {{ quizzes.option1 }}</p>
+      <p class="quiz_content">2: {{ quizzes.option2 }}</p>
+      <p class="quiz_content">3: {{ quizzes.option3 }}</p>
+      <p class="quiz_content">4: {{ quizzes.option4 }}</p>
+<br/>
+
+     {% for i in quizzes.choiceAn %}  <li>Your Answer is : {{ i.answer }} </li> {% endfor %}
+
+<br/>
+
+<div class="answer_content-section">
+<form method="POST" action="{{ url_for('choice',post_id=quizzes.id)}}">
+
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+            <label class="form-check-label" for="exampleRadios1">Option 1</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+            <label class="form-check-label" for="exampleRadios2">Option 2</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3">
+            <label class="form-check-label" for="exampleRadios3">Option 3</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios4" value="option4">
+            <label class="form-check-label" for="exampleRadios4">Option 4</label>
+        </div>
+        <div>
+            <button  type="submit" class="btn btn-secondary btn-sm mt-1 mb-1" >submit</button>
+        </div>
+    </form>
+
+
+</div>
+
+  </div>
+
+</quiz>
+
+
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Delete Quiz?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form action="{{ url_for('delete_quiz', post_id=quizzes.id) }}" method="POST">
+            <input class="btn btn-danger" type="submit" value="Delete">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    {% endfor %}
+
+
+
+
+
+
+
+{% endblock content %}
+
+
