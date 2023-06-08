@@ -34,6 +34,7 @@ class Post(db.Model):
     option2 = db.Column(db.String(300), nullable=False)
     option3 = db.Column(db.String(300), nullable=False)
     option4 = db.Column(db.String(300), nullable=False)
+    optionCorrect = db.Column(db.String(300), nullable=False)
     choiceAn = db.relationship('ChoiceAn', passive_deletes=True)
 
     # user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -92,7 +93,8 @@ def qu():
                        option1=form.option1.data,
                        option2=form.option2.data,
                        option3=form.option3.data,
-                       option4=form.option4.data)
+                       option4=form.option4.data,
+                       optionCorrect=form.optionCorrect.data)
 
         db.session.add(quizzes)
         db.session.commit()

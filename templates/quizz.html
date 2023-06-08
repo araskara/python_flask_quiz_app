@@ -20,7 +20,15 @@
       <p class="quiz_content">4: {{ quizzes.option4 }}</p>
 <br/>
 
-     {% for i in quizzes.choiceAn %}  <li>Your Answer is : {{ i.answer }} </li> {% endfor %}
+      {% for i in quizzes.choiceAn %}
+    <li>Your Answer is : {{ i.answer }}
+    {% if i.answer == quizzes.optionCorrect %}
+        <p>Correct answer</p>
+    {% else %}
+        <p>Wrong answer</p>
+    {% endif %}
+    </li>
+{% endfor %}
 
 <br/>
 

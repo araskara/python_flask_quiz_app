@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, FieldList, FormField,RadioField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, FieldList, FormField, \
+    RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
 
@@ -32,10 +33,11 @@ class QuForm(FlaskForm):
                           validators=[DataRequired()])
     option4 = StringField('option4',
                           validators=[DataRequired()])
+    optionCorrect = StringField('optionCorrect',
+                                validators=[DataRequired()])
+
     submit = SubmitField('Publish')
 
 
 class ChoiceForm(FlaskForm):
-    example = RadioField('Label', choices=[('value','description'),('value_two','whatever')])
-
-
+    example = RadioField('Label', choices=[('value', 'description'), ('value_two', 'whatever')])
