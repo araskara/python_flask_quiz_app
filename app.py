@@ -1,58 +1,23 @@
-from datetime import datetime
+from init import db, login_manager
 from flask import Flask, render_template, url_for, flash, redirect, request
-from forms import RegistrationForm, QuForm, ChoiceForm
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from models import User, Post, ChoiceAn
+from forms import RegistrationForm, QuForm, LoginForm,QuizCreationForm
+from flask_bcrypt import Bcrypt
+from flask_login import login_user, logout_user, current_user, login_required
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '83C551DCFC2BAB5671487DADAF8CB'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+db.init_app(app)
+login_manager.init_app(app)
 
-# ---------- Model ---------------
+with app.app_context():
+    db.create_all()
 
-'''class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-    password = db.Column(db.String(60), nullable=False)
-    posts = db.relationship('Post', backref='author', lazy=True)
-
-    def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
-'''
+bcrypt = Bcrypt(app)
 
 
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    content = db.Column(db.Text, nullable=False)
-    option1 = db.Column(db.String(300), nullable=False)
-    option2 = db.Column(db.String(300), nullable=False)
-    option3 = db.Column(db.String(300), nullable=False)
-    option4 = db.Column(db.String(300), nullable=False)
-    optionCorrect = db.Column(db.String(300), nullable=False)
-    choiceAn = db.relationship('ChoiceAn', passive_deletes=True)
-
-    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
-
-
-class ChoiceAn(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    answer = db.Column(db.String(20), nullable=False )
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-
-
-
-
-# ---------- End Model---------------
-
+# ---------- URL & View---------------
 
 @app.route('/')
 @app.route('/home')
@@ -65,18 +30,51 @@ def about():
     return render_template('about.html', title='About')
 
 
-@app.route('/login')
+@app.route("/login", methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
+            return redirect(url_for('home'))
+        else:
+            flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template('login.html', title='Login', form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
         flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+
+'''
+@app.route('/create_quiz', methods=['GET', 'POST'])
+@login_required
+def create_quiz():
+    form = QuizCreationForm() # assuming you have a QuizCreationForm
+    if form.validate_on_submit():
+        new_quiz = Quiz(title=form.title.data, description=form.description.data, author=current_user)
+        db.session.add(new_quiz)
+        db.session.commit()
+        flash('Your quiz has been created!', 'success')
+        return redirect(url_for('home')) # or wherever you want to go after creating a quiz
+    return render_template('create_quiz.html', title='Create Quiz', form=form)
+
+'''
+
 
 
 @app.route('/quiz')
@@ -86,7 +84,8 @@ def quiz():
 
 
 @app.route('/qu', methods=['GET', 'POST'])
-def qu():
+@login_required
+def question():
     form = QuForm()
     if form.validate_on_submit():
         quizzes = Post(title=form.title.data, content=form.content.data,
@@ -100,11 +99,12 @@ def qu():
         db.session.commit()
         flash('Quiz has been created!', 'success')
         return redirect(url_for('quiz'))
-    return render_template('qu.html', title='Add Quiz',
-                           form=form, legend='New Post')
+    return render_template('qu.html', title='Add Question',
+                           form=form, legend='New Question')
 
 
 @app.route('/quiz/<int:post_id>/update', methods=['GET', 'POST'])
+@login_required
 def update_quiz(post_id):
     quizzes = Post.query.get_or_404(post_id)
     form = QuForm()
@@ -131,6 +131,7 @@ def update_quiz(post_id):
 
 
 @app.route('/quiz/<int:post_id>/delete', methods=['GET', 'POST'])
+@login_required
 def delete_quiz(post_id):
     quizzes = Post.query.get_or_404(post_id)
     db.session.delete(quizzes)
@@ -148,21 +149,14 @@ def choice(post_id):
     return redirect(url_for('quiz'))
 
 
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
 
 
+# ---------- End URL & View---------------
 
-
-'''
-def choice(post_id):
-    answer = Post.query.get_or_404(post_id)
-    form = ChoiceForm()
-    if form.validate_on_submit():
-        answer = Choice(choice=form.choice.data)
-    db.session.add(answer)
-    db.session.commit()
-    flash('Answer submitted', 'success')
-    return redirect(url_for('quiz'))
-'''
 
 if __name__ == '__main__':
     app.run()

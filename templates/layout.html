@@ -17,8 +17,6 @@
     {% endif %}
 </head>
 
-
-
 <body>
 
     <header class="site-header">
@@ -33,13 +31,21 @@
               <a class="nav-item nav-link" href="/">Welcome</a>
               <a class="nav-item nav-link" href="/about">About</a>
               <a class="nav-item nav-link" href="/quiz">Quiz</a>
+                {% if current_user.is_authenticated %}
                 <a class="nav-item nav-link" href="/qu">Add Quiz</a>
+               {% endif %}
+
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
+              {% if current_user.is_authenticated %}
+                  <a class="nav-item nav-link" href="/logout">Logout</a>
+
+                {%else%}
+
               <a class="nav-item nav-link" href="/login">Login</a>
               <a class="nav-item nav-link" href="/register">Register</a>
-
+               {% endif %}
             </div>
           </div>
         </div>

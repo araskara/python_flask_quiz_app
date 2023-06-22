@@ -8,10 +8,12 @@
     <div class="quiz-metadata">
       <a class="mr-2" href="#">{{ quizzes.title }}</a>
       <small class="text-muted">{{ quizzes.date_posted.strftime('%Y-%m-%d') }}</small>
+        {% if current_user.is_authenticated %}
       <div>
           <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_quiz', post_id=quizzes.id) }}">Update</a>
           <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
       </div>
+        {% endif %}
     </div>
     <h2><a class="quizzes.title" href="#">{{ quizzes.content }}</a></h2>
       <p class="quiz_content">1: {{ quizzes.option1 }}</p>
